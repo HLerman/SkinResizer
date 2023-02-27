@@ -18,6 +18,8 @@ go build
 
 ## Usage
 
+Les images générées apparaitront dans le dossier où vous executez votre commande
+
 ### Linux
 ```bash
 ./SkinResizer /home/user/slayersonline/Chipset/zeronin.png
