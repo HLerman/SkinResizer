@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"image"
+	"image/color"
 	"image/draw"
 	"image/png"
 	"log"
@@ -48,20 +50,35 @@ func main() {
 		os.Exit(0)
 	}
 
-	/*palettedImg, ok := img.(*image.Paletted)
-	if !ok {
-		log.Printf("L'image %s ne contient pas de palette de couleurs", imageName)
-		os.Exit(0)
-	}*/
+	// On regarde si l'image a bien une palette de couleur et si la première couleur correspond à la couleur de transparence
+	var colors []uint8
+	var rgbaImg *image.RGBA
 
-	// Afficher la palette de couleurs
-	/*fmt.Println("Palette de couleurs :")
-	c := palettedImg.Palette[0]
-	fmt.Println(c.RGBA())*/
-	/*for _, c := range palettedImg.Palette {
-		//fmt.Printf(" - #%02x%02x%02x\n", c.R, c.G, c.B)
-		fmt.Println(c.RGBA())
-	}*/
+	// On regarde si l'image a bien une palette de couleur
+	palettedImg, ok := img.(*image.Paletted)
+	if ok {
+
+		// On vérifie que la première couleur correspond bien à une couleur de transparence 8bits
+		colors = transpColor(palettedImg)
+		if len(colors) > 0 {
+			rgbaImg = image.NewRGBA(img.Bounds())
+			draw.Draw(rgbaImg, img.Bounds(), img, image.Point{0, 0}, draw.Src)
+
+			// Trouver la couleur à rendre transparente
+			colorToTransparent := color.RGBA{colors[0], colors[1], colors[2], 255} // Rouge pur
+
+			// Parcourir chaque pixel de l'image
+			for y := rgbaImg.Bounds().Min.Y; y < rgbaImg.Bounds().Max.Y; y++ {
+				for x := rgbaImg.Bounds().Min.X; x < rgbaImg.Bounds().Max.X; x++ {
+					// Vérifier si la couleur du pixel correspond à la couleur à rendre transparente
+					if rgbaImg.At(x, y) == colorToTransparent {
+						// Rendre le pixel transparent
+						rgbaImg.SetRGBA(x, y, color.RGBA{0, 0, 0, 0})
+					}
+				}
+			}
+		}
+	}
 
 	x := 0
 	y := 0
@@ -75,6 +92,10 @@ func main() {
 		cropSize := image.Rect(0, 0, 24, 32)
 		cropSize = cropSize.Add(image.Point{x, y})
 		croppedImage := img.(SubImager).SubImage(cropSize)
+
+		if len(colors) > 0 {
+			croppedImage = rgbaImg.SubImage(cropSize)
+		}
 
 		/*err := createFrame(croppedImage, fmt.Sprintf("%d.%s", i, imageName))
 		if err != nil {
@@ -123,3 +144,15 @@ func main() {
 
 	return nil
 }*/
+
+func transpColor(palettedImg *image.Paletted) []uint8 {
+	for _, c := range palettedImg.Palette {
+		r, g, b, a := c.RGBA()
+		if a > 0 && fmt.Sprintf("%02x%02x%02x", uint8(r>>8), uint8(g>>8), uint8(b>>8)) != "000000" {
+			return []uint8{uint8(r >> 8), uint8(g >> 8), uint8(b >> 8)}
+		}
+		break
+	}
+
+	return nil
+}

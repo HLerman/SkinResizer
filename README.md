@@ -39,3 +39,9 @@ ou pour transformer toutes les skins d'un repertoire :
 ```powershell
 Get-ChildItem -Path 'C:\Users\User\Documents\Slayers Online\Chipset\*.png' | Foreach {SkinResizer.exe $_.fullname}
 ```
+
+## Informations
+
+La skin nouvellement créée :
+- n'est pas indexée
+- a un fond transparent (ex: le fond rose de frost.png devient transparent)
