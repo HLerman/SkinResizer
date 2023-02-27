@@ -31,13 +31,13 @@ find "/home/user/slayersonline/Chipset" -iname '*.png' -exec ./SkinResizer {} \;
 
 ### Windows
 ```powershell
-./SkinResizer.exe 
+./SkinResizer.exe 'C:\Users\User\Documents\Slayers Online\Chipset\zeronin.png'
 ```
 
 ou pour transformer toutes les skins d'un repertoire :
 
 ```powershell
-Get-ChildItem -Path 'C:\Users\User\Documents\Slayers Online\Chipset\*.png' | Foreach {SkinResizer.exe $_.fullname}
+Get-ChildItem -Path 'C:\Users\User\Documents\Slayers Online\Chipset\*.png' | Foreach {./SkinResizer.exe $_.fullname}
 ```
 
 ## Informations
